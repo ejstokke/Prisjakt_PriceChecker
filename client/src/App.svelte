@@ -1,50 +1,98 @@
 <script>
 	let product_data;
 	let loading = false;
+	let not_found;
+	let show_main = true;
 
 	async function get_price() {
+		not_found = false;
 		loading = true;
-		console.log(loading)
 		let p_id = document.getElementById("pnumber").value;
+
 		await fetch(`http://localhost:5000/price/${p_id}`)
 			.then(response => response.json())
-			.then(data => product_data = data);
-		loading = false;
-	}
+			.then(data => product_data = data)
+			.catch(err => not_found = true);
 
+		loading = false;
+	};
+
+	document.addEventListener('keypress', function (e) {
+        if (e.keyCode === 13 || e.which === 13) {
+            e.preventDefault();
+			get_price()
+        }        
+    });
+
+	function handleClick() {
+		if (show_main) {
+			show_main = false;
+		} else {
+			show_main = true;
+		}
+		
+	};
+
+	function sendAlert() {
+		let email = document.getElementById("email").value;
+		let priceLimit = document.getElementById("price").value;
+		
+		let user_data = {
+			'email': email,
+			'price_limit': priceLimit,
+			'product_data': product_data, 
+		}
+
+		console.log(user_data);
+	}
 </script>
 
 <main>
-	<h1>Prisjakt Price checker</h1>
-	<table>
-		<tr>
-			<td>
-				<form class="card">
-					<label for="pnumber">Skriv inn produktnavn:</label>
-					<input type="text" id="pnumber" name="pnumber">
-					<div class="submit" on:click={get_price}>Søk</div>
-				</form>
-			</td>
-		</tr>
-		{#if loading}
+	<h1>Price alert</h1>
+	{#if show_main}
+		<table>
 			<tr>
-				<td>Laster inn...</td>
+				<td>
+					<form class="card">
+						<label for="pnumber">Skriv inn produktnavn:</label>
+						<input type="text" id="pnumber" name="pnumber">
+						<div class="submit" on:click={get_price}>Søk</div>
+					</form>
+				</td>
 			</tr>
-		{/if}
-		<tr>
-			<td>
-				{#if product_data !== undefined}
-					<div class="card">
-						<p>{product_data.title}</p>
-						<img src={product_data.img_src} alt="product">
-						<p>{product_data.price}</p>
-						<div class="submit">Varsle meg om prisendring</div>
-					</div>
-				{/if}
-			</td>
-		</tr>
-	</table>
-	
+			{#if loading}
+				<tr>
+					<td>Laster inn...</td>
+				</tr>
+			{/if}
+			<tr>
+				<td>
+					{#if not_found}
+						<p>Produktet ble ikke funnet...</p>
+					{/if}
+					{#if product_data !== undefined}
+						<div class="card">
+							<p><a href={product_data.url}>{product_data.title}</a></p>
+							<img src={product_data.img_src} alt="product">
+							<p>kr {product_data.price}</p>
+							<div class="submit" id="varsel" on:click={handleClick}>Varsle meg om prisendring</div>
+						</div>
+					{/if}
+				</td>
+			</tr>
+		</table>
+	{:else}
+		<div>	
+			<form class="card">
+				<div class="submit" on:click={handleClick}>Tilbake til hovedmenyen</div>
+				<label for="email">Skriv inn din epost-adresse:</label>
+				<input type="text" id="email" name="email">
+				<label for="price">Skriv inn prisgrense for når du vil varsles:</label>
+				<input type="number" id="price" name="price">
+				<div class="submit" id="sendAlert" on:click={sendAlert}>Send meg varsel</div>
+			</form>
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -67,7 +115,7 @@
 	}
 
 	img {
-		max-height: 180px;
+		max-height: 150px;
 	}
 
 	.card {
@@ -99,10 +147,15 @@
 		border: 1px solid rgba(0, 0, 0, 0.2);
 		min-width: 160px;
 		max-width: 200px;
-		padding: 5px;
+		padding: 7px;
+		margin: 10px 0px 10px 0px;
 	}
 
 	.submit:hover {
 		cursor: pointer;
+	}
+
+	#varsel {
+		margin: 0px 0px 10px 0px;
 	}
 </style>
