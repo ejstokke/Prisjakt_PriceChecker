@@ -75,7 +75,7 @@
 							<p><a href={product_data.url}>{product_data.title}</a></p>
 							<img src={product_data.img_src} alt="product">
 							<p>kr {product_data.price}</p>
-							<div class="submit" id="varsel" on:click={handleClick}>Varsle meg om prisendring</div>
+							<div class="submit emphasizedButton" id="varsel" on:click={handleClick}>Varsle meg om prisendring</div>
 						</div>
 					{/if}
 				</td>
@@ -88,8 +88,8 @@
 				<label for="email">Skriv inn din epost-adresse:</label>
 				<input type="text" id="email" name="email">
 				<label for="price">Skriv inn prisgrense for når du vil varsles:</label>
-				<input type="number" id="price" name="price">
-				<div class="submit" id="sendAlert" on:click={sendAlert}>Send meg varsel</div>
+				<input type="number" id="price" name="price" min="0">
+				<div class="submit emphasizedButton" id="sendAlert" on:click={sendAlert}>Send meg varsel</div>
 			</form>
 		</div>
 	{/if}
@@ -157,5 +157,10 @@
 
 	#varsel {
 		margin: 0px 0px 10px 0px;
+	}
+
+	.emphasizedButton {
+		background-color: #2ECC40;
+		color: white;
 	}
 </style>
